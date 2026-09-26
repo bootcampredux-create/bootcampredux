@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOOTCAMP REDUX | Graphics Mods</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #0c0e12;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 40px;
+      border-bottom: 1px solid #1a1e26;
+      background: #0c0e12;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .brand img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #f59e0b;
+    }
+
+    .brand span {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #ffffff, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .btn-discord-nav {
+      background: #5865f2;
+      color: #fff;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-discord-nav:hover {
+      background: #4752c4;
+      transform: translateY(-1px);
+    }
+
+    /* Category Filter Bar */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 24px 40px 10px 40px;
+      flex-wrap: wrap;
+    }
+
+    .category-btn {
+      background: #171a21;
+      border: 1px solid #232733;
+      color: #9ca3af;
+      padding: 8px 20px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .category-btn:hover {
+      background: #232733;
+      color: #fff;
+    }
+
+    .category-btn.active {
+      background: #ffffff;
+      color: #0c0e12;
+      border-color: #ffffff;
+    }
+
+    /* Mod Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 20px 40px 60px 40px;
+      flex: 1;
+    }
+
+    .card {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      aspect-ratio: 16 / 10;
+      background: #161a22;
+      cursor: pointer;
+      border: 1px solid #1f2430;
+      transition: transform 0.25s, border-color 0.25s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: #3b4252;
+    }
+
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s;
+    }
+
+    .card:hover img {
+      transform: scale(1.04);
+    }
+
+    .badge-pill {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .badge-premium {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000;
+    }
+
+    .badge-free {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .card-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 16px 12px 16px;
+      background: linear-gradient(to top, rgba(12,14,18,0.95) 10%, rgba(12,14,18,0.6) 70%, transparent);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+
+    .card-downloads {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    /* 2-Column Detail Container */
+    .detail-container {
+      background: #14171f;
+      border-radius: 22px;
+      border: 1px solid #282e3d;
+      max-width: 1000px;
+      width: 100%;
+      height: 560px;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #fff;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: background 0.2s;
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* Left Sidebar */
+    .detail-left {
+      width: 320px;
+      background: #10131a;
+      padding: 36px 26px 28px 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid #202633;
+    }
+
+    .detail-meta-top h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      line-height: 1.25;
+    }
+
+    .detail-stats {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+    }
+
+    .stat-label {
+      color: #6b7280;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-download-trigger {
+      width: 100%;
+      background: linear-gradient(90deg, #d97706, #f59e0b);
+      color: #000;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn-download-trigger:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    /* Right Preview Area */
+    .detail-right {
+      flex: 1;
+      background: #000;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .detail-right img,
+    .detail-right iframe {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border: none;
+    }
+
+    .media-btn-prev, .media-btn-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.55);
+      border: none;
+      color: #fff;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      transition: background 0.2s;
+    }
+
+    .media-btn-prev:hover, .media-btn-next:hover {
+      background: rgba(0, 0, 0, 0.85);
+    }
+
+    .media-btn-prev { left: 16px; }
+    .media-btn-next { right: 16px; }
+
+    .media-toggle-pill {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 18, 24, 0.85);
+      padding: 5px 8px;
+      border-radius: 30px;
+      display: flex;
+      gap: 6px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .media-toggle-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .media-toggle-btn.active {
+      background: #fff;
+      color: #000;
+    }
+
+    /* Discord Alert Popup Modal */
+    .discord-popup {
+      background: #14171f;
+      border: 1px solid #2b3242;
+      border-radius: 20px;
+      padding: 36px 30px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+    }
+
+    .discord-popup img {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      margin-bottom: 18px;
+      border: 3px solid #f59e0b;
+    }
+
+    .discord-popup h3 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .discord-popup p {
+      color: #94a3b8;
+      font-size: 1.05rem;
+      margin-bottom: 26px;
+    }
+
+    .btn-join-discord {
+      background: #5865f2;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-join-discord:hover {
+      background: #4752c4;
+    }
+
+    @media (max-width: 768px) {
+      header, .controls, .grid {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+      .detail-container {
+        flex-direction: column-reverse;
+        height: 90vh;
+      }
+      .detail-left {
+        width: 100%;
+        height: auto;
+      }
+      .detail-right {
+        height: 55%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header>
+    <a href="#" class="brand">
+      <!-- Replace with your server logo file if local: images/logo.png -->
+      <img src="images/logo.png" alt="Logo" id="brand-logo">
+      <span>BOOTCAMP REDUX</span>
+    </a>
+    <a href="https://discord.gg/JKNzn4wG6c" target="_blank" class="btn-discord-nav" id="nav-discord-btn">
+      <i class="fa-brands fa-discord"></i> Discord
+    </a>
+  </header>
+
+  <!-- Categories -->
+  <section class="controls">
+    <button class="category-btn active" onclick="setCategory('all')">All</button>
+    <button class="category-btn" onclick="setCategory('graphics')">Graphics Mods</button>
+    <button class="category-btn" onclick="setCategory('tree')">Tree</button>
+    <button class="category-btn" onclick="setCategory('road')">Road</button>
+  </section>
+
+  <!-- Mods Grid -->
+  <main class="grid" id="mods-grid"></main>
+
+  <!-- 1. Detail / Preview Modal (Slideshow & Video) -->
+  <div class="modal-backdrop" id="detail-modal">
+    <div class="detail-container">
+      <button class="modal-close-btn" onclick="closeDetailModal()"><i class="fa-solid fa-xmark"></i></button>
+      
+      <!-- Left Info Column -->
+      <div class="detail-left">
+        <div class="detail-meta-top">
+          <div id="modal-tier-badge" style="margin-bottom: 12px;"></div>
+          <h2 id="modal-title">Mod Name</h2>
+          
+          <div class="detail-stats">
+            <div class="stat-row">
+              <span class="stat-label">Category</span>
+              <span class="stat-value" id="modal-category"></span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">File Size</span>
+              <span class="stat-value" id="modal-size"></span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Downloads</span>
+              <span class="stat-value" id="modal-downloads"></span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-download-trigger" onclick="openDiscordPopup()">Download</button>
+      </div>
+
+      <!-- Right Media Preview Column -->
+      <div class="detail-right" id="media-viewport">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Discord Conversion Popup -->
+  <div class="modal-backdrop" id="discord-modal">
+    <div class="discord-popup">
+      <button class="modal-close-btn" onclick="closeDiscordPopup()"><i class="fa-solid fa-xmark"></i></button>
+      <img src="images/logo.png" alt="Bootcamp Redux" id="popup-logo">
+      <h3>BOOTCAMP REDUX</h3>
+      <p>join our discord server for the redux</p>
+      
+      <a href="https://discord.gg/JKNzn4wG6c" target="_blank" class="btn-join-discord" id="modal-discord-link">
+        <i class="fa-brands fa-discord"></i> Join Discord Server
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // CONFIGURE YOUR DISCORD INVITE HERE
+    // -------------------------------------------------------------
+    const DISCORD_INVITE_URL = "https://discord.gg/JKNzn4wG6c";
+
+    // -------------------------------------------------------------
+    // MOD LIST DATA (Add your photos, videos, and mods here)
+    // -------------------------------------------------------------
+    const MODS = [
+      {
+        id: 1,
+        name: "Bootcamp v1",
+        category: "graphics",
+        tier: "premium", // "premium" or "free"
+        downloads: "",
+        fileSize: "450 MB",
+        thumb: "images/bootcampv1 (5).png",
+        images: [
+          "images/bootcampv1 (1).png",
+          "images/bootcampv1 (2).png",
+          "images/bootcampv1 (3).png",
+          "images/bootcampv1 (4).png",
+          "images/bootcampv1 (5).png",
+        ],
+        video: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      },
+      {
+        id: 2,
+        name: "California Trees",
+        category: "tree",
+        tier: "premium",
+        downloads: "",
+        fileSize: "1.1 GB",
+        thumb: "images/californiatree (1).png",
+        images: [
+          "images/californiatree (1).png",
+          "images/californiatree (2).png",
+          "images/californiatree (3).png",
+        ],
+        video: ""
+      },
+      {
+        id: 3,
+        name: "Europe Roads",
+        category: "road",
+        tier: "premium",
+        downloads: "",
+        fileSize: "3 GB",
+        thumb: "images/Europe Roads (1).png",
+        images: [
+          "images/Europe Roads (1).png",
+          "images/Europe Roads (2).png",
+          "images/Europe Roads (3).png",
+        ],
+        video: ""
+      },
+      {
+        id: 4,
+        name: "commingsoon",
+        category: "graphics",
+        tier: "free",
+        downloads: "35.0k",
+        fileSize: "3.1 GB",
+        thumb: "images/commingsoon.jpg",
+        images: [
+        "images/commingsoon.jpg",
+        ],
+        video: ""
+      },
+      {
+        id: 5,
+        name: "Realistic Oak & Palms",
+        category: "tree",
+        tier: "premium",
+        downloads: "84.2k",
+        fileSize: "850 MB",
+        thumb: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800",
+        images: [
+          "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1200"
+        ],
+        video: ""
+      },
+      {
+        id: 6,
+        name: "Wet Dark Asphalt",
+        category: "road",
+        tier: "free",
+        downloads: "122.1k",
+        fileSize: "1.6 GB",
+        thumb: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800",
+        images: [
+          "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=1200"
+        ],
+        video: ""
+      }
+    ];
+
+    let currentCategory = "all";
+    let activeMod = null;
+    let activeSlideIndex = 0;
+    let currentMediaType = "photo"; // "photo" or "video"
+
+    // Set discord links
+    document.getElementById("nav-discord-btn").href = DISCORD_INVITE_URL;
+    document.getElementById("modal-discord-link").href = DISCORD_INVITE_URL;
+
+    // Render Grid Cards
+    function renderGrid() {
+      const grid = document.getElementById("mods-grid");
+      grid.innerHTML = "";
+
+      const filtered = currentCategory === "all" 
+        ? MODS 
+        : MODS.filter(m => m.category === currentCategory);
+
+      filtered.forEach(mod => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = () => openDetailModal(mod.id);
+
+        const badgeHtml = mod.tier === "premium" 
+          ? `<span class="badge-pill badge-premium"><i class="fa-solid fa-crown"></i> Premium</span>`
+          : `<span class="badge-pill badge-free">Free</span>`;
+
+        card.innerHTML = `
+          <img src="${mod.thumb}" alt="${mod.name}" loading="lazy">
+          ${badgeHtml}
+          <div class="card-footer">
+            <span class="card-title">${mod.name}</span>
+            <span class="card-downloads"><i class="fa-solid fa-arrow-down"></i> ${mod.downloads}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Category Filter Switch
+    function setCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll(".category-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.textContent.toLowerCase().includes(cat) || (cat === "graphics" && btn.textContent.includes("Graphics")));
+      });
+      renderGrid();
+    }
+
+    // Open Mod Detail Modal
+    function openDetailModal(id) {
+      activeMod = MODS.find(m => m.id === id);
+      activeSlideIndex = 0;
+      currentMediaType = "photo";
+
+      document.getElementById("modal-title").innerText = activeMod.name;
+      document.getElementById("modal-category").innerText = activeMod.category.toUpperCase();
+      document.getElementById("modal-size").innerText = activeMod.fileSize;
+      document.getElementById("modal-downloads").innerText = activeMod.downloads;
+
+      const badgeContainer = document.getElementById("modal-tier-badge");
+      if (activeMod.tier === "premium") {
+        badgeContainer.innerHTML = `<span class="badge-pill badge-premium" style="position:static; display:inline-flex;"><i class="fa-solid fa-crown"></i> PREMIUM</span>`;
+      } else {
+        badgeContainer.innerHTML = `<span class="badge-pill badge-free" style="position:static; display:inline-flex;">FREE</span>`;
+      }
+
+      renderMediaViewport();
+      document.getElementById("detail-modal").classList.add("open");
+    }
+
+    function closeDetailModal() {
+      document.getElementById("detail-modal").classList.remove("open");
+      const vp = document.getElementById("media-viewport");
+      vp.innerHTML = ""; // Stop video playback
+    }
+
+    // Render slideshow or video
+    function renderMediaViewport() {
+      const vp = document.getElementById("media-viewport");
+      vp.innerHTML = "";
+
+      if (currentMediaType === "video" && activeMod.video) {
+        vp.innerHTML = `<iframe src="${activeMod.video}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+      } else {
+        const imgSrc = activeMod.images[activeSlideIndex] || activeMod.thumb;
+        vp.innerHTML = `<img src="${imgSrc}" alt="preview">`;
+
+        // Add arrows if multiple images exist
+        if (activeMod.images && activeMod.images.length > 1) {
+          const prev = document.createElement("button");
+          prev.className = "media-btn-prev";
+          prev.innerHTML = `<i class="fa-solid fa-chevron-left"></i>`;
+          prev.onclick = (e) => { e.stopPropagation(); prevSlide(); };
+
+          const next = document.createElement("button");
+          next.className = "media-btn-next";
+          next.innerHTML = `<i class="fa-solid fa-chevron-right"></i>`;
+          next.onclick = (e) => { e.stopPropagation(); nextSlide(); };
+
+          vp.appendChild(prev);
+          vp.appendChild(next);
+        }
+      }
+
+      // Add Photo / Video toggle pill if video exists
+      if (activeMod.video) {
+        const pill = document.createElement("div");
+        pill.className = "media-toggle-pill";
+        pill.innerHTML = `
+          <button class="media-toggle-btn ${currentMediaType === 'photo' ? 'active' : ''}" onclick="switchMediaType('photo')"><i class="fa-solid fa-image"></i> Photos</button>
+          <button class="media-toggle-btn ${currentMediaType === 'video' ? 'active' : ''}" onclick="switchMediaType('video')"><i class="fa-solid fa-play"></i> Video</button>
+        `;
+        vp.appendChild(pill);
+      }
+    }
+
+    function prevSlide() {
+      activeSlideIndex = (activeSlideIndex - 1 + activeMod.images.length) % activeMod.images.length;
+      renderMediaViewport();
+    }
+
+    function nextSlide() {
+      activeSlideIndex = (activeSlideIndex + 1) % activeMod.images.length;
+      renderMediaViewport();
+    }
+
+    function switchMediaType(type) {
+      currentMediaType = type;
+      renderMediaViewport();
+    }
+
+    // Discord Conversion Popup handlers
+    function openDiscordPopup() {
+      document.getElementById("discord-modal").classList.add("open");
+    }
+
+    function closeDiscordPopup() {
+      document.getElementById("discord-modal").classList.remove("open");
+    }
+
+    // Initialize
+    renderGrid();
+  </script>
+</body>
+</html>
